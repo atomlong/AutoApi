@@ -8,29 +8,15 @@ from nacl import encoding, public
 app_num=os.getenv('APP_NUM')
 if app_num == '':
     app_num='1'
-gh_token=os.getenv('GH_TOKEN')
-gh_repo=os.getenv('GH_REPO')
+drone_server=os.getenv('DRONE_SERVER')
+drone_token=os.getenv('DRONE_TOKEN')
+drone_repo=os.getenv('DRONE_REPO')
 #ms_token=os.getenv('MS_TOKEN')
 #client_id=os.getenv('CLIENT_ID')
 #client_secret=os.getenv('CLIENT_SECRET')
-Auth=r'token '+gh_token
-geturl=r'https://api.github.com/repos/'+gh_repo+r'/actions/secrets/public-key'
-#puturl=r'https://api.github.com/repos/'+gh_repo+r'/actions/secrets/MS_TOKEN'
-key_id='wangziyingwen'
-
-#公钥获取
-def getpublickey(Auth,geturl):
-    headers={'Accept': 'application/vnd.github.v3+json','Authorization': Auth}
-    html = req.get(geturl,headers=headers)
-    jsontxt = json.loads(html.text)
-    if 'key' in jsontxt:
-        print("公钥获取成功")
-    else:
-        print("公钥获取失败，请检查secret里 GH_TOKEN 格式与设置是否正确")
-    public_key = jsontxt['key']
-    global key_id 
-    key_id = jsontxt['key_id']
-    return public_key
+Auth=r'Bearer '+drone_token
+#geturl=drone_server+r'/api/repos/'+drone_repo+r'/secrets/public-key'
+#puturl=rdrone_server+r'/api/repos/'+drone_repo+r'/secrets/MS_TOKEN'
 
 #微软refresh_token获取
 def getmstoken(ms_token,appnum):
@@ -53,21 +39,13 @@ def getmstoken(ms_token,appnum):
     return refresh_token
 #是否要保存access，以降低微软token刷新率???
 
-#token加密
-def createsecret(public_key,secret_value):
-    public_key = public.PublicKey(public_key.encode("utf-8"), encoding.Base64Encoder())
-    sealed_box = public.SealedBox(public_key)
-    encrypted = sealed_box.encrypt(secret_value.encode("utf-8"))
-    return b64encode(encrypted).decode("utf-8")
-
 #token上传
-def setsecret(encrypted_value,key_id,puturl,appnum):
+def setsecret(mstoken,puturl,appnum):
     headers={'Accept': 'application/vnd.github.v3+json','Authorization': Auth}
-    #data={'encrypted_value': encrypted_value,'key_id': key_id}  ->400error
-    data_str=r'{"encrypted_value":"'+encrypted_value+r'",'+r'"key_id":"'+key_id+r'"}'
-    putstatus=req.put(puturl,headers=headers,data=data_str)
+    data_str=r'{"data": "'+mstoken+r'", "pull_request": false}'
+    putstatus=req.patch(puturl,headers=headers,data=data_str)
     if putstatus.status_code >= 300:
-        print(r'账号/应用 '+str(appnum)+' 的微软密钥上传失败，请检查secret里 GH_TOKEN 格式与设置是否正确')
+        print(r'账号/应用 '+str(appnum)+' 的微软密钥上传失败，请检查secret里 DRONE_TOKEN 格式与设置是否正确')
     else:
         print(r'账号/应用 '+str(appnum)+' 的微软密钥上传成功')
     return putstatus
@@ -78,8 +56,7 @@ for a in range(1, int(app_num)+1):
     client_secret=os.getenv('CLIENT_SECRET_'+str(a))
     ms_token=os.getenv('MS_TOKEN_'+str(a))
     if a == 1:
-        puturl=r'https://api.github.com/repos/'+gh_repo+r'/actions/secrets/MS_TOKEN'
+        puturl=drone_server+r'/api/repos/'+drone_repo+r'/secrets/MS_TOKEN'
     else:
-        puturl=r'https://api.github.com/repos/'+gh_repo+r'/actions/secrets/MS_TOKEN_'+str(a)
-    encrypted_value=createsecret(getpublickey(Auth,geturl),getmstoken(ms_token,a))
-    setsecret(encrypted_value,key_id,puturl,a)
+        puturl=drone_server+r'/api/repos/'+drone_repo+r'/secrets/MS_TOKEN_'+str(a)
+    setsecret(getmstoken(ms_token,a),puturl,a)

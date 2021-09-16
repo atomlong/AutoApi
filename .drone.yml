@@ -1,0 +1,136 @@
+---
+kind: pipeline
+type: docker
+name: default
+
+environment:
+  CI_NAME: drone
+  CI_REPO: ${DRONE_REPO}
+  CI_BRANCH: ${DRONE_BRANCH}
+  CI_BUILD_NUMBER: ${DRONE_BUILD_NUMBER}
+  CI_BUILD_URL: ${DRONE_BUILD_LINK}
+
+steps:
+- name: run-read
+  image: python
+  commands:
+  - pip install requests
+  - python ApiOfRead.py
+  environment:
+    #以下是微软的账号信息（修改以下，类推复制增加）
+    APP_NUM:
+      from_secret: APP_NUM
+    #账号/应用1
+    MS_TOKEN_1:
+      from_secret: MS_TOKEN
+    CLIENT_ID_1:
+      from_secret: CLIENT_ID
+    CLIENT_SECRET_1:
+      from_secret: CLIENT_SECRET
+    #账号/应用2
+    MS_TOKEN_2:
+      from_secret: MS_TOKEN_2
+    CLIENT_ID_2:
+      from_secret: CLIENT_ID_2
+    CLIENT_SECRET_2:
+      from_secret: CLIENT_SECRET_2
+    #账号/应用3:
+    MS_TOKEN_3:
+      from_secret: MS_TOKEN_3
+    CLIENT_ID_3:
+      from_secret: CLIENT_ID_3
+    CLIENT_SECRET_3: 
+      from_secret: CLIENT_SECRET_3
+    #如此类推，自己复制增加账号/应用
+    MS_TOKEN_n:
+      from_secret: MS_TOKEN_n
+    CLIENT_ID_n:
+      from_secret: CLIENT_ID_n
+    CLIENT_SECRET_n:
+      from_secret: CLIENT_SECRET_n
+
+- name: run-write
+  image: python
+  commands:
+  - pip install requests
+  - pip install xlsxwriter
+  - python ApiOfWrite.py
+  environment:
+    CITY:
+      from_secret: CITY
+    EMAIL:
+      from_secret: EMAIL
+    #以下是微软的账号信息（修改以下，类推复制增加）
+    APP_NUM:
+      from_secret: APP_NUM
+    #账号/应用1
+    MS_TOKEN_1:
+      from_secret: MS_TOKEN
+    CLIENT_ID_1:
+      from_secret: CLIENT_ID
+    CLIENT_SECRET_1:
+      from_secret: CLIENT_SECRET
+    #账号/应用2
+    MS_TOKEN_2:
+      from_secret: MS_TOKEN_2
+    CLIENT_ID_2:
+      from_secret: CLIENT_ID_2
+    CLIENT_SECRET_2:
+      from_secret: CLIENT_SECRET_2
+    #账号/应用3:
+    MS_TOKEN_3:
+      from_secret: MS_TOKEN_3
+    CLIENT_ID_3:
+      from_secret: CLIENT_ID_3
+    CLIENT_SECRET_3: 
+      from_secret: CLIENT_SECRET_3
+    #如此类推，自己复制增加账号/应用
+    MS_TOKEN_n:
+      from_secret: MS_TOKEN_n
+    CLIENT_ID_n:
+      from_secret: CLIENT_ID_n
+    CLIENT_SECRET_n:
+      from_secret: CLIENT_SECRET_n
+
+- name: update-token
+  image: python
+  commands:
+  - pip install requests
+  - pip install PyNaCl
+  - python UpdateToken.py
+  environment:
+    DRONE_SERVER:
+      from_secret: DRONE_SERVER
+    DRONE_TOKEN:
+      from_secret: DRONE_TOKEN
+    #以下是微软的账号信息（修改以下，类推复制增加）
+    APP_NUM:
+      from_secret: APP_NUM
+    #账号/应用1
+    MS_TOKEN_1:
+      from_secret: MS_TOKEN
+    CLIENT_ID_1:
+      from_secret: CLIENT_ID
+    CLIENT_SECRET_1:
+      from_secret: CLIENT_SECRET
+    #账号/应用2
+    MS_TOKEN_2:
+      from_secret: MS_TOKEN_2
+    CLIENT_ID_2:
+      from_secret: CLIENT_ID_2
+    CLIENT_SECRET_2:
+      from_secret: CLIENT_SECRET_2
+    #账号/应用3:
+    MS_TOKEN_3:
+      from_secret: MS_TOKEN_3
+    CLIENT_ID_3:
+      from_secret: CLIENT_ID_3
+    CLIENT_SECRET_3: 
+      from_secret: CLIENT_SECRET_3
+    #如此类推，自己复制增加账号/应用
+    MS_TOKEN_n:
+      from_secret: MS_TOKEN_n
+    CLIENT_ID_n:
+      from_secret: CLIENT_ID_n
+    CLIENT_SECRET_n:
+      from_secret: CLIENT_SECRET_n
