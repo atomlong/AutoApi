@@ -9,6 +9,8 @@ environment:
   CI_BRANCH: ${DRONE_BRANCH}
   CI_BUILD_NUMBER: ${DRONE_BUILD_NUMBER}
   CI_BUILD_URL: ${DRONE_BUILD_LINK}
+  CRONJOB: "run-daily"
+  CRONEXPR: "0 0 0 * * *"
 
 steps:
 - name: run-read
@@ -134,3 +136,16 @@ steps:
       from_secret: CLIENT_ID_n
     CLIENT_SECRET_n:
       from_secret: CLIENT_SECRET_n
+
+- name: schedule
+  image: drone/cli:alpine
+  commands:
+  - CRON_LS=$(drone cron ls "$${CI_REPO}" | sed -n "/$${CRONJOB}/,/^$/p")
+  - if [ -z "$${CRON_LS}" ]; then
+  - drone cron add --branch "$${CI_BRANCH}" "$${CI_REPO}" "$${CRONJOB}" "$${CRONEXPR}"
+  - fi
+  environment:
+    DRONE_SERVER:
+      from_secret: DRONE_SERVER
+    DRONE_TOKEN:
+      from_secret: DRONE_TOKEN

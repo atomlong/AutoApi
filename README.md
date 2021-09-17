@@ -149,7 +149,7 @@ ________________________________________________
 
    * 1）点击上栏的Builds进入运行页面。该页面显示SUMMARY和EXECUTIONS。
    
-       点击进入一个EXECUTION，会看到左边有4个步骤，一个是默认的clone，一个run-read，一个run-write，一个update-token。
+       点击进入一个EXECUTION，会看到左边至少有4个步骤，一个是默认的clone，一个run-read，一个run-write，一个update-token。
        
          工作流程说明
 			 clone:         下载源代码
